@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt';
+
 import {
   TGuardian,
   TLocalGuardian,
@@ -9,7 +9,7 @@ import {
   // StudentMongooseModel,
   StudentMongooseStaticModel,
 } from './student.interface';
-import config from '../../config';
+
 const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
@@ -81,10 +81,12 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 const studentSchema = new Schema<TStudent, StudentMongooseStaticModel>(
   {
     id: { type: String, required: [true, 'ID is required'], unique: true },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      maxLength: [20, 'Password can not be more than 20 characters'],
+
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User ID is required'],
+      unique: true,
+      ref: 'User',
     },
     name: { type: userNameSchema, required: [true, 'Name is required'] },
     gender: {
@@ -144,7 +146,6 @@ const studentSchema = new Schema<TStudent, StudentMongooseStaticModel>(
       trim: true,
     },
     profileImg: { type: String },
-    isActive: { type: String, enum: ['Active', 'Blocked'], default: 'Active' },
     isDeleted: { type: Boolean, default: false },
   },
   {
@@ -156,23 +157,6 @@ const studentSchema = new Schema<TStudent, StudentMongooseStaticModel>(
 // virtual
 studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
-});
-
-// pre save middleware / Hook
-
-studentSchema.pre('save', async function () {
-  // hashing password and save into DB
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // this refer student document
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-});
-
-// post save middleware / Hook
-studentSchema.post('save', function () {
-  this.password = '';
 });
 
 // Query Middleware
