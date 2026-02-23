@@ -30,6 +30,16 @@ const TAcademicSemesterSchema = new Schema<TAcademicSemester>(
     timestamps: true,
   },
 );
+// pre hook validation
+TAcademicSemesterSchema.pre('save', async function () {
+  const isSemesterExists = await AcademicSemesterModel.findOne({
+    year: this.year,
+    name: this.name,
+  });
+  if (isSemesterExists) {
+    throw new Error(`The ${this.name} semester already exists in this year!`);
+  }
+});
 
 // create model
 export const AcademicSemesterModel = model<TAcademicSemester>(
