@@ -152,6 +152,7 @@ const studentSchema = new Schema<TStudent, StudentMongooseStaticModel>(
     toJSON: {
       virtuals: true,
     },
+    timestamps: true,
   },
 );
 // virtual
