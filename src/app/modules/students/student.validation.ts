@@ -23,39 +23,36 @@ const localGuardianValidationSchema = z.object({
   address: z.string().trim().min(1, 'Guardian Address is required'),
 });
 
-export const studentValidationZodSchema = z.object({
-  id: z.string().min(1, 'ID is required'),
-
-  name: userNameValidationSchema,
-
-  gender: z.enum(['Male', 'Female', 'Others'], {
-    message: 'Gender must be Male, Female, or Others',
+export const createStudentValidationZodSchema = z.object({
+  body: z.object({
+    password: z.string().max(20, 'Password can not be more than 20 characters'),
+    student: z.object({
+      name: userNameValidationSchema,
+      gender: z.enum(['Male', 'Female', 'Others'], {
+        message: 'Gender must be Male, Female, or Others',
+      }),
+      DOB: z.string().trim().min(1, 'Date Of Birth is required'),
+      email: z.string().trim().email('Valid email is required'),
+      contactNo: z.string().trim().min(1, 'Contact No is required'),
+      emergencyContactNo: z
+        .string()
+        .trim()
+        .min(1, 'Emergency Contact No is required'),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .optional(),
+      presentAddress: z.string().trim().min(1, 'Present Address is required'),
+      permanentAddress: z
+        .string()
+        .trim()
+        .min(1, 'Permanent Address is required'),
+      guardian: guardianValidationSchema,
+      localGuardian: localGuardianValidationSchema,
+      profileImg: z.string().optional(),
+    }),
   }),
-
-  DOB: z.string().trim().min(1, 'Date Of Birth is required'),
-
-  email: z.string().trim().email('Valid email is required'),
-
-  contactNo: z.string().trim().min(1, 'Contact No is required'),
-
-  emergencyContactNo: z
-    .string()
-    .trim()
-    .min(1, 'Emergency Contact No is required'),
-
-  bloodGroup: z
-    .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-    .optional(),
-
-  presentAddress: z.string().trim().min(1, 'Present Address is required'),
-
-  permanentAddress: z.string().trim().min(1, 'Permanent Address is required'),
-
-  guardian: guardianValidationSchema,
-
-  localGuardian: localGuardianValidationSchema,
-
-  profileImg: z.string().optional(),
-
-  isDeleted: z.boolean(),
 });
+
+export const StudentZodValidations = {
+  createStudentValidationZodSchema,
+};
