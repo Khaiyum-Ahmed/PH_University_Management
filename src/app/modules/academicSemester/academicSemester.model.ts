@@ -4,6 +4,8 @@ import {
   AcademicSemesterCode,
   AcademicSemesterName,
 } from './academicSemester.constant';
+import { AppError } from '../../errors/AppError';
+import status from 'http-status';
 export const Months: TMonth[] = [
   'January',
   'February',
@@ -37,7 +39,10 @@ TAcademicSemesterSchema.pre('save', async function () {
     name: this.name,
   });
   if (isSemesterExists) {
-    throw new Error(`The ${this.name} semester already exists in this year!`);
+    throw new AppError(
+      status.NOT_FOUND,
+      `The ${this.name} semester already exists in this year!`,
+    );
   }
 });
 

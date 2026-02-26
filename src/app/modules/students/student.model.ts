@@ -147,6 +147,7 @@ const studentSchema = new Schema<TStudent, StudentMongooseStaticModel>(
     },
     profileImg: { type: String },
     admissionSemester: { type: Schema.ObjectId, ref: 'AcademicSemester' },
+    academicDepartment: { type: Schema.ObjectId, ref: 'AcademicDepartment' },
     isDeleted: { type: Boolean, default: false },
   },
 
