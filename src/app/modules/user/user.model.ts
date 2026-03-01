@@ -2,6 +2,8 @@ import { model, Schema } from 'mongoose';
 import { TUser } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
+import { AppError } from '../../errors/AppError';
+import status from 'http-status';
 const userSchema = new Schema<TUser>(
   {
     id: { type: String, required: true, unique: true },
@@ -30,6 +32,12 @@ userSchema.pre('save', async function () {
     user.password,
     Number(config.bcrypt_salt_rounds),
   );
+  const isUserExists = await UserModel.findOne({
+    id: this.id,
+  });
+  if (isUserExists) {
+    throw new AppError(status.NOT_FOUND, `This User is Already Exists !`);
+  }
 });
 
 // post save middleware / Hook

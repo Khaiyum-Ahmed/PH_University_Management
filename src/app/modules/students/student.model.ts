@@ -164,6 +164,7 @@ studentSchema.virtual('fullName').get(function () {
 });
 
 // Query Middleware
+
 studentSchema.pre('find', function () {
   this.find({ isDeleted: { $ne: true } });
 });
@@ -177,10 +178,10 @@ studentSchema.pre('aggregate', function () {
 });
 
 // Creating a custom Static method
-studentSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await StudentModel.findOne({ id });
-  return existingUser;
-};
+// studentSchema.statics.isUserExists = async function (id: string) {
+//   const existingUser = await StudentModel.findOne({ id });
+//   return existingUser;
+// };
 
 export const StudentModel = model<TStudent, StudentMongooseStaticModel>(
   'Student',
