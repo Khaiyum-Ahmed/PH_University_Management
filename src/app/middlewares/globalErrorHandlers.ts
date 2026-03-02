@@ -3,13 +3,16 @@
 import { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { TerrorSources } from '../interface/error';
-import { ZodIssue } from 'zod/v3';
 import config from '../config';
 import handleZodError from '../errors/zodError';
+import handleValidationMongooseError from '../errors/mongooseError';
+import handleMongooseCastError from '../errors/mongooseCastError';
+import handleDuplicateError from '../errors/duplicateError';
+import { AppError } from '../errors/AppError';
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // setting default values
-  let statusCode = err.statusCode || 500;
-  let message = err.message || 'something went Wrong!';
+  let statusCode = 500;
+  let message = 'something went Wrong!';
 
   let errorSources: TerrorSources = [
     {
@@ -23,6 +26,38 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = simplifiedError.errorSources;
+  } else if (err?.name === 'ValidationError') {
+    const simplifiedError = handleValidationMongooseError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
+  } else if (err?.name === 'CastError') {
+    const simplifiedError = handleMongooseCastError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
+  } else if (err?.code === '11000') {
+    const simplifiedError = handleDuplicateError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
+  } else if (err instanceof AppError) {
+    statusCode = err?.statusCode;
+    message = err?.message;
+    errorSources = [
+      {
+        path: '',
+        message: err?.message,
+      },
+    ];
+  } else if (err instanceof Error) {
+    message = err?.message;
+    errorSources = [
+      {
+        path: '',
+        message: err?.message,
+      },
+    ];
   }
 
   // Ultimate return
