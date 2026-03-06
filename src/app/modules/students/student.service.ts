@@ -6,8 +6,19 @@ import status from 'http-status';
 import { AppError } from '../../errors/AppError';
 import { TStudent } from './student.interface';
 
-const getAllStudentsFromDB = async () => {
-  const result = await StudentModel.find()
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  // {"name.email": {$regex :query.searchTerm, $option: "i"}}
+  // {"name.presentAddress": {$regex :query.searchTerm, $option: "i"}}
+  // {"name.firstName": {$regex :query.searchTerm, $option: "i"}}
+  let searchTerm = '';
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+  const result = await StudentModel.find({
+    $or: ['email', 'name.firstName', 'presentAddress'].map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    })),
+  })
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
