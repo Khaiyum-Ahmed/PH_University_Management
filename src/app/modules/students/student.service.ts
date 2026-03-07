@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import mongoose from 'mongoose';
 import { StudentModel } from './student.model';
@@ -22,10 +23,11 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     })),
   });
   // filtering
-  const excludeFields = ['searchTerm', 'sort', 'limit'];
+  const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
   excludeFields.forEach((el) => delete queryObj[el]);
 
-  // resolve here
+  console.log({ query }, { queryObj });
+
   const filterQuery = searchQuery
     .find(queryObj)
     .populate('admissionSemester')
@@ -35,18 +37,45 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
         path: 'academicFaculty',
       },
     });
+  // sorting
   let sort = '-createdAt';
   if (query.sort) {
     sort = query.sort as string;
   }
   const sortQuery = filterQuery.sort(sort);
-
+  // limiting
+  // Pagination
+  /**
+   * limit =10, page=1, skip=0 [Show 10 documents on each page]
+   * limit =10, page=2, skip=10 [Show 10 documents on each page]
+   * limit =10, page=3, skip=20 [Show 10 documents on each page]
+   *
+   * Calculation For Skip:
+   * limit =10, page=1, skip=(1-1)*10
+   * limit =10, page=2, skip=(2-1)*10
+   * limit =10, page=3, skip=(3-1)*10
+   * limit =10, page=page, skip=(page-1)*10
+   */
+  let page = 1;
   let limit = 1;
+  let skip = 0;
   if (query.limit) {
-    limit = query.limit as number;
+    limit = Number(query.limit);
   }
-  const limitQuery = await sortQuery.limit(limit);
-  return limitQuery;
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
+  const paginateQuery = sortQuery.skip(skip);
+
+  const limitQuery = paginateQuery.limit(limit);
+  // field limiting
+  let fields = '-__v';
+  if (query.fields) {
+    fields = (query.fields as string).split(',').join(' ');
+  }
+  const fieldQuery = await limitQuery.select(fields);
+  return fieldQuery;
 };
 
 const getSingleStudentFromDB = async (id: string) => {
