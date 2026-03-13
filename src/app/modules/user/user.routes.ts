@@ -2,12 +2,18 @@ import express from 'express';
 import { UserControllers } from './user.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { StudentZodValidations } from '../students/student.validation';
+import { facultyValidationSchema } from '../Faculty/faculty.validation';
 const router = express.Router();
 
 router.post(
   '/create-student',
   validateRequest(StudentZodValidations.createStudentValidationZodSchema),
   UserControllers.createStudent,
+);
+router.post(
+  '/create-faculty',
+  validateRequest(facultyValidationSchema),
+  UserControllers.createFaculty,
 );
 
 export const UserRoutes = router;
