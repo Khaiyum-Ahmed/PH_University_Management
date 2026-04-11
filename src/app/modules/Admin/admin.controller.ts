@@ -14,6 +14,46 @@ const getAllAdmins = catchAsync(async (req, res) => {
   });
 });
 
+const getSingleAdmin = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await AdminServices.getSingleAdminFromDB(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Admin is retrieved successfully',
+    data: result,
+  });
+});
+
+const updateAdmin = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { admin } = req.body;
+  const result = await AdminServices.updateAdminIntoDB(id as string, admin);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Admin is updated successfully',
+    data: result,
+  });
+});
+
+const deletedAdmin = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await AdminServices.deleteAdminFromDB(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Admin is Deleted Successfully',
+    data: result,
+  });
+});
+
 export const AdminControllers = {
   getAllAdmins,
+  getSingleAdmin,
+  updateAdmin,
+  deletedAdmin,
 };
