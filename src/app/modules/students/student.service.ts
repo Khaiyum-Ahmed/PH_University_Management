@@ -102,7 +102,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  const result = await StudentModel.findOne({ id })
+  const result = await StudentModel.findById(id)
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -134,7 +134,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  const result = await StudentModel.findOneAndUpdate({ id }, payload, {
+  const result = await StudentModel.findByIdAndUpdate(id, modifiedUpdatedData, {
     new: true,
     runValidators: true,
   });
@@ -152,8 +152,8 @@ const deleteAStudentFromDB = async (id: string) => {
     //   throw new AppError(status.NOT_FOUND, 'Student does not exist');
     // }
 
-    const deletedStudent = await StudentModel.findOneAndUpdate(
-      { id },
+    const deletedStudent = await StudentModel.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -167,8 +167,10 @@ const deleteAStudentFromDB = async (id: string) => {
     //   throw new AppError(status.NOT_FOUND, 'User does not exist');
     // }
 
-    const deletedUser = await UserModel.findOneAndUpdate(
-      { id },
+    // get user _id from deletedStudent
+    const userId = deletedStudent.user;
+    const deletedUser = await UserModel.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );

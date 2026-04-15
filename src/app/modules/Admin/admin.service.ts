@@ -59,8 +59,7 @@ const deleteAdminFromDB = async (id: string) => {
     }
     // get user _id from deletedAdmin
     const userId = deletedAdmin.user;
-
-    const deletedUser = await UserModel.findOneAndUpdate(
+    const deletedUser = await UserModel.findByIdAndUpdate(
       userId,
       { isDeleted: true },
       { new: true, session },

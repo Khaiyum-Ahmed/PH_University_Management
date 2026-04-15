@@ -9,11 +9,11 @@ const router = express.Router();
 
 router.get('/', StudentControllers.getAllStudents);
 
-router.get('/:studentId', StudentControllers.getSingleStudent);
+router.get('/:id', StudentControllers.getSingleStudent);
 
-router.delete('/:studentId', StudentControllers.deleteAStudent);
+router.delete('/:id', StudentControllers.deleteAStudent);
 router.patch(
-  '/:studentId',
+  '/:id',
   validateRequest(StudentZodValidations.updateStudentValidationZodSchema),
   StudentControllers.updateAStudent,
 );
