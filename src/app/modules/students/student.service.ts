@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import mongoose from 'mongoose';
 import { StudentModel } from './student.model';
